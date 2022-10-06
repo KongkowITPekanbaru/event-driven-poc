@@ -1,0 +1,10 @@
+**/node_modules/
+
+**/files-to-send/*
+!**/files-to-send/.gitkeep
+
+**/files-sent/*
+!**/files-sent/.gitkeep
+
+**/files-received/*
+!**/files-received/.gitkeep
