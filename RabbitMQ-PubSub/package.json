@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "yarn dev:producer && yarn dev:consumer",
     "dev:producer": "ts-node-dev producer/index.ts",
-    "dev:consumer": "ts-node-dev consumer/index.ts"
+    "dev:consumer:task": "ts-node-dev consumer/task.ts",
+    "dev:consumer:log": "ts-node-dev consumer/log.ts"
   },
   "dependencies": {
     "amqplib": "^0.10.1"
