@@ -1,12 +1,16 @@
 import fs from "fs";
 import path from "path";
-import amqplib from "amqplib";
+import { Kafka } from "kafkajs";
 
-const rabbitUrl = "amqp://localhost:5672";
 const watchDir = path.resolve(__dirname, "files-to-send");
 const processedDir = path.resolve(__dirname, "files-sent");
 
 let watchedFiles: string[] = [];
+
+const kafka = new Kafka({
+  clientId: "producer",
+  brokers: ["localhost:9092"],
+});
 
 fs.watch(watchDir, async (event, filename) => {
   if (event !== "change") return;
@@ -16,29 +20,27 @@ fs.watch(watchDir, async (event, filename) => {
 
   console.log(`New file ${filename} detected on ${watchDir}`);
 
-  const connection = await amqplib.connect(rabbitUrl);
-  const channel = await connection.createChannel();
-
-  const exchange = "FILE_UPLOAD_EXCHANGE";
-  const queue = "FILE_UPLOAD_QUEUE";
-
-  await channel.assertExchange(exchange, "x-delayed-message", {
-    durable: true,
-    arguments: { "x-delayed-type": "direct" },
-  });
-  await channel.assertQueue(queue, { durable: true });
-  await channel.bindQueue(queue, exchange, filename);
+  const producer = kafka.producer();
+  await producer.connect();
 
   try {
     console.log(`[${new Date().toLocaleString()}] Publishing file...`);
 
     const fileBuffer = fs.readFileSync(path.resolve(watchDir, filename));
 
-    const message = {
-      fileBuffer,
-    };
-
-    channel.publish(exchange, filename, Buffer.from(JSON.stringify(message)));
+    await producer.send({
+      topic: "files",
+      messages: [
+        {
+          value: Buffer.from(
+            JSON.stringify({
+              fileBuffer,
+              filename,
+            })
+          ),
+        },
+      ],
+    });
 
     console.log(`File ${filename} published`);
 
@@ -53,8 +55,7 @@ fs.watch(watchDir, async (event, filename) => {
   } finally {
     console.log("Closing connection...");
 
-    await channel.close();
-    await connection.close();
+    await producer.disconnect();
 
     console.log("Connection closed");
   }
