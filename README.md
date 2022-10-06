@@ -26,6 +26,5 @@ For a critical message, we can set the queue as `autoDelete: false` so, when the
 Demonstrates how to use RabbitMQ to process files (data streams) with retry and delay mechanism in a failure scenario. This example uses the `rabbitmq_delayed_message_exchange` plugin.
 
 ## Rabbit-RetryDelayedWithoutPlugin
-Demonstrates how to use RabbitMQ to reprocess a message after a failure without using plugins, just with exchange and dead letter queue (with ttl).
 
-## RabbitMQ-Topics
+Demonstrates how to use RabbitMQ to reprocess a message after a failure without using plugins, just with exchange and dead letter queue (with ttl).
