@@ -11,7 +11,7 @@ const quantityOfMessages = 2;
 
   const exchange = "TASK_EXCHANGE";
 
-  await channel.assertExchange(exchange, "fanout", { durable: true });
+  await channel.assertExchange(exchange, "fanout", { durable: true, autoDelete: false });
 
   for (let i = 0; i < quantityOfMessages; i++) {
     try {
